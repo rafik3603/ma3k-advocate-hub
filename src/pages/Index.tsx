@@ -25,6 +25,8 @@ const Index = () => {
     { title: "الموكلين", href: "/clients" },
     { title: "المتابعة المالية", href: "/financial" },
     { title: "المستندات والعرائض", href: "/documents" },
+    { title: "التقارير", href: "/reports" },
+    { title: "الإعدادات", href: "/settings" },
   ];
 
   return (
