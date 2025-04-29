@@ -11,6 +11,8 @@ import ClosedCases from "./pages/ClosedCases";
 import ArchivedCases from "./pages/ArchivedCases";
 import Appointments from "./pages/Appointments";
 import Clients from "./pages/Clients";
+import Financial from "./pages/Financial";
+import Documents from "./pages/Documents";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +29,8 @@ const App = () => (
           <Route path="/archived-cases" element={<ArchivedCases />} />
           <Route path="/appointments" element={<Appointments />} />
           <Route path="/clients" element={<Clients />} />
+          <Route path="/financial" element={<Financial />} />
+          <Route path="/documents" element={<Documents />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

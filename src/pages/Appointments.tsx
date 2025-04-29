@@ -6,9 +6,11 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from 'date-fns/locale';
+import { AddAppointmentForm } from "../components/add-appointment-form";
 
 const Appointments = () => {
   const [currentDate] = useState(new Date());
+  const [showAddForm, setShowAddForm] = useState(false);
   
   // Mock data for appointments
   const appointments = [
@@ -53,6 +55,10 @@ const Appointments = () => {
   const upcomingAppointments = appointments.filter(
     appointment => appointment.date > currentDate
   );
+
+  const handleAddAppointment = () => {
+    setShowAddForm(true);
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
@@ -128,11 +134,19 @@ const Appointments = () => {
           )}
         </div>
 
-        <Button className="w-full bg-lawyer-primary hover:bg-lawyer-secondary arabic-text">
+        <Button 
+          className="w-full bg-lawyer-primary hover:bg-lawyer-secondary arabic-text"
+          onClick={handleAddAppointment}
+        >
           <Calendar className="ml-2 h-4 w-4" />
           إضافة موعد جديد
         </Button>
       </div>
+      
+      <AddAppointmentForm 
+        isOpen={showAddForm} 
+        onClose={() => setShowAddForm(false)} 
+      />
     </div>
   );
 };

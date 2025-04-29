@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight, Search, Plus, Phone, FileText } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { AddClientForm } from "../components/add-client-form";
 
 const Clients = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [showAddForm, setShowAddForm] = useState(false);
   
   // Mock data for clients
   const clients = [
@@ -42,6 +44,10 @@ const Clients = () => {
     client.phone.includes(searchQuery)
   );
 
+  const handleAddClient = () => {
+    setShowAddForm(true);
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-white">
       <Navbar />
@@ -67,47 +73,61 @@ const Clients = () => {
         </div>
 
         <div className="space-y-4 mb-6">
-          {filteredClients.map(client => (
-            <div key={client.id} className="bg-lawyer-light p-4 rounded-md border border-lawyer-primary">
-              <h3 className="font-medium text-lg arabic-text mb-2">{client.name}</h3>
-              
-              <div className="flex items-center mb-1 text-sm">
-                <Phone className="h-4 w-4 ml-2 text-lawyer-secondary" />
-                <span className="arabic-text">{client.phone}</span>
-              </div>
-              
-              <div className="text-sm text-gray-600 arabic-text mb-1">
-                البريد الإلكتروني: {client.email}
-              </div>
-              
-              <div className="text-sm text-gray-600 arabic-text">
-                العنوان: {client.address}
-              </div>
-              
-              <div className="flex justify-between items-center mt-3">
-                <div className="flex items-center">
-                  <FileText className="h-4 w-4 ml-1 text-lawyer-secondary" />
-                  <span className="text-sm font-medium arabic-text">
-                    {client.activeCases} قضايا نشطة
-                  </span>
+          {filteredClients.length > 0 ? (
+            filteredClients.map(client => (
+              <div key={client.id} className="bg-lawyer-light p-4 rounded-md border border-lawyer-primary">
+                <h3 className="font-medium text-lg arabic-text mb-2">{client.name}</h3>
+                
+                <div className="flex items-center mb-1 text-sm">
+                  <Phone className="h-4 w-4 ml-2 text-lawyer-secondary" />
+                  <span className="arabic-text">{client.phone}</span>
                 </div>
                 
-                <div>
-                  <Button size="sm" variant="outline" className="arabic-text ml-2">عرض القضايا</Button>
-                  <Button size="sm" variant="default" className="arabic-text bg-lawyer-primary hover:bg-lawyer-secondary">
-                    تفاصيل الموكل
-                  </Button>
+                <div className="text-sm text-gray-600 arabic-text mb-1">
+                  البريد الإلكتروني: {client.email}
+                </div>
+                
+                <div className="text-sm text-gray-600 arabic-text">
+                  العنوان: {client.address}
+                </div>
+                
+                <div className="flex justify-between items-center mt-3">
+                  <div className="flex items-center">
+                    <FileText className="h-4 w-4 ml-1 text-lawyer-secondary" />
+                    <span className="text-sm font-medium arabic-text">
+                      {client.activeCases} قضايا نشطة
+                    </span>
+                  </div>
+                  
+                  <div>
+                    <Button size="sm" variant="outline" className="arabic-text ml-2">عرض القضايا</Button>
+                    <Button size="sm" variant="default" className="arabic-text bg-lawyer-primary hover:bg-lawyer-secondary">
+                      تفاصيل الموكل
+                    </Button>
+                  </div>
                 </div>
               </div>
+            ))
+          ) : (
+            <div className="text-center py-8 text-gray-500 arabic-text">
+              لا توجد نتائج مطابقة للبحث
             </div>
-          ))}
+          )}
         </div>
 
-        <Button className="w-full bg-lawyer-primary hover:bg-lawyer-secondary arabic-text">
+        <Button 
+          className="w-full bg-lawyer-primary hover:bg-lawyer-secondary arabic-text"
+          onClick={handleAddClient}
+        >
           <Plus className="ml-2 h-4 w-4" />
           إضافة موكل جديد
         </Button>
       </div>
+      
+      <AddClientForm 
+        isOpen={showAddForm} 
+        onClose={() => setShowAddForm(false)} 
+      />
     </div>
   );
 };

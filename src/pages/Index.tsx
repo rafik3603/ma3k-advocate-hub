@@ -23,6 +23,8 @@ const Index = () => {
     { title: "القضايا المؤرشفة", href: "/archived-cases" },
     { title: "المواعيد", href: "/appointments" },
     { title: "الموكلين", href: "/clients" },
+    { title: "المتابعة المالية", href: "/financial" },
+    { title: "المستندات والعرائض", href: "/documents" },
   ];
 
   return (
