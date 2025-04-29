@@ -8,10 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const ClosedCases = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState("all");
+  const [selectedCase, setSelectedCase] = useState(null);
+  const [showJudgmentDialog, setShowJudgmentDialog] = useState(false);
   
   // Mock data for closed cases
   const closedCases = [
@@ -24,7 +27,15 @@ const ClosedCases = () => {
       result: "لصالح الموكل",
       subject: "نزاع تجاري",
       compensation: "50000 د.ج",
-      judge: "فريد محمد"
+      judge: "فريد محمد",
+      judgment: `بسم الله الرحمن الرحيم، والصلاة والسلام على أشرف المرسلين.
+      
+حكمت المحكمة حضورياً:
+1. بإلزام المدعى عليه بدفع مبلغ 50000 د.ج للمدعي كتعويض عن الأضرار التي لحقت به.
+2. إلزام المدعى عليه بدفع الرسوم والمصاريف القضائية.
+
+القاضي: فريد محمد
+التاريخ: 2022-11-30`
     },
     { 
       id: 2, 
@@ -35,7 +46,15 @@ const ClosedCases = () => {
       result: "ضد الموكل",
       subject: "قضية إدارية",
       compensation: "0 د.ج",
-      judge: "سمير أحمد"
+      judge: "سمير أحمد",
+      judgment: `بسم الله الرحمن الرحيم، والصلاة والسلام على أشرف المرسلين.
+      
+حكمت المحكمة حضورياً:
+1. رفض الدعوى المقدمة من المدعي لعدم كفاية الأدلة.
+2. إلزام المدعي بدفع الرسوم والمصاريف القضائية.
+
+القاضي: سمير أحمد
+التاريخ: 2022-12-10`
     },
     { 
       id: 3, 
@@ -46,7 +65,15 @@ const ClosedCases = () => {
       result: "لصالح الموكل",
       subject: "نزاع عمالي",
       compensation: "35000 د.ج",
-      judge: "نادية حسين"
+      judge: "نادية حسين",
+      judgment: `بسم الله الرحمن الرحيم، والصلاة والسلام على أشرف المرسلين.
+      
+حكمت المحكمة حضورياً:
+1. إعادة المدعي إلى عمله مع إلزام الشركة المدعى عليها بدفع مبلغ 35000 د.ج كتعويض عن فترة الفصل التعسفي.
+2. إلزام المدعى عليها بدفع الرسوم والمصاريف القضائية.
+
+القاضي: نادية حسين
+التاريخ: 2023-01-05`
     },
     { 
       id: 4, 
@@ -57,7 +84,16 @@ const ClosedCases = () => {
       result: "صلح",
       subject: "نزاع مدني",
       compensation: "20000 د.ج",
-      judge: "أمين خالد"
+      judge: "أمين خالد",
+      judgment: `بسم الله الرحمن الرحيم، والصلاة والسلام على أشرف المرسلين.
+      
+حكمت المحكمة حضورياً بتثبيت الصلح المبرم بين الطرفين والذي تم الاتفاق بموجبه على:
+1. قيام المدعى عليه بدفع مبلغ 20000 د.ج للمدعي كتعويض كامل ونهائي.
+2. إنهاء النزاع القائم بين الطرفين وعدم المطالبة بأي حقوق أخرى.
+3. تقسيم المصاريف القضائية مناصفة بين الطرفين.
+
+القاضي: أمين خالد
+التاريخ: 2023-02-15`
     },
     { 
       id: 5, 
@@ -68,7 +104,17 @@ const ClosedCases = () => {
       result: "لصالح الموكل",
       subject: "قضية أحوال شخصية",
       compensation: "15000 د.ج",
-      judge: "ياسمين عمر"
+      judge: "ياسمين عمر",
+      judgment: `بسم الله الرحمن الرحيم، والصلاة والسلام على أشرف المرسلين.
+      
+حكمت المحكمة حضورياً:
+1. تثبيت حضانة الأطفال للمدعية.
+2. إلزام المدعى عليه بدفع نفقة شهرية قدرها 15000 د.ج للأطفال.
+3. إلزام المدعى عليه بتوفير مسكن ملائم للمدعية والأطفال.
+4. إلزام المدعى عليه بدفع الرسوم والمصاريف القضائية.
+
+القاضي: ياسمين عمر
+التاريخ: 2023-03-20`
     },
   ];
 
@@ -98,6 +144,11 @@ const ClosedCases = () => {
     
     return matchesSearch;
   });
+
+  const handleViewJudgment = (caseItem) => {
+    setSelectedCase(caseItem);
+    setShowJudgmentDialog(true);
+  };
 
   const getResultBadge = (result: string) => {
     if (result === "لصالح الموكل") {
@@ -203,7 +254,12 @@ const ClosedCases = () => {
                   <div>{getResultBadge(caseItem.result)}</div>
                   
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline" className="arabic-text">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="arabic-text"
+                      onClick={() => handleViewJudgment(caseItem)}
+                    >
                       <FileText className="ml-1 h-4 w-4" />
                       عرض الحكم
                     </Button>
@@ -233,6 +289,55 @@ const ClosedCases = () => {
           </Button>
         </div>
       </div>
+
+      {/* Judgment Dialog */}
+      <Dialog open={showJudgmentDialog} onOpenChange={setShowJudgmentDialog}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold arabic-text">الحكم القضائي</DialogTitle>
+            <DialogDescription className="arabic-text">
+              قضية رقم {selectedCase?.caseNumber} - {selectedCase?.client}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedCase && (
+            <div className="py-4">
+              <div className="rounded-md border p-5 bg-stone-50 text-right arabic-text whitespace-pre-line">
+                {selectedCase.judgment}
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500 arabic-text">المحكمة</h3>
+                  <p className="arabic-text">{selectedCase.court}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500 arabic-text">القاضي</h3>
+                  <p className="arabic-text">{selectedCase.judge}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500 arabic-text">تاريخ الحكم</h3>
+                  <p className="arabic-text">{selectedCase.date}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500 arabic-text">النتيجة</h3>
+                  <p className="arabic-text">{selectedCase.result}</p>
+                </div>
+              </div>
+              
+              <div className="flex justify-end gap-2 mt-4">
+                <Button variant="outline" className="arabic-text">
+                  <Download className="ml-1 h-4 w-4" />
+                  تحميل الحكم
+                </Button>
+                <Button variant="default" className="arabic-text bg-lawyer-primary hover:bg-lawyer-secondary">
+                  طباعة الحكم
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

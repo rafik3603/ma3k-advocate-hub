@@ -9,10 +9,18 @@ import { StatsCard } from '../components/stats-card';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 const Financial = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState("all");
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showReceiptDialog, setShowReceiptDialog] = useState(false);
   
   // Mock data for financial transactions
   const transactions = [
@@ -25,7 +33,10 @@ const Financial = () => {
       caseNumber: "2023/01",
       paymentMethod: "تحويل بنكي",
       description: "دفعة أولى - قضية نزاع عقاري",
-      category: "أتعاب محاماة"
+      category: "أتعاب محاماة",
+      receiptNumber: "REC-2023-001",
+      bankAccount: "بنك الجزائر - 12345678901",
+      notes: "تم استلام المبلغ بالكامل"
     },
     { 
       id: 2, 
@@ -36,7 +47,10 @@ const Financial = () => {
       caseNumber: "2023/02",
       paymentMethod: "نقدي",
       description: "دفعة كاملة - استشارة قانونية",
-      category: "استشارة"
+      category: "استشارة",
+      receiptNumber: "REC-2023-002",
+      bankAccount: "غير متاح",
+      notes: "تم تقديم الاستشارة في مكتب المحامي"
     },
     { 
       id: 3, 
@@ -47,7 +61,10 @@ const Financial = () => {
       caseNumber: "2023/03",
       paymentMethod: "بطاقة ائتمان",
       description: "دفعة جزئية - قضية تجارية",
-      category: "أتعاب محاماة"
+      category: "أتعاب محاماة",
+      receiptNumber: "REC-2023-003",
+      bankAccount: "غير متاح",
+      notes: "متبقي 5000 د.ج للدفع"
     },
     { 
       id: 4, 
@@ -58,7 +75,10 @@ const Financial = () => {
       caseNumber: "2023/04",
       paymentMethod: "شيك",
       description: "دفعة مقدمة - قضية نزاع تجاري",
-      category: "أتعاب محاماة"
+      category: "أتعاب محاماة",
+      receiptNumber: "REC-2023-004",
+      bankAccount: "غير متاح",
+      notes: "شيك رقم 12345 - بنك التنمية المحلية"
     },
     { 
       id: 5, 
@@ -69,7 +89,10 @@ const Financial = () => {
       caseNumber: "2023/05",
       paymentMethod: "نقدي",
       description: "رسوم محكمة - تقديم دعوى",
-      category: "رسوم محكمة"
+      category: "رسوم محكمة",
+      receiptNumber: "EXP-2023-001",
+      bankAccount: "غير متاح",
+      notes: "إيصال المحكمة رقم 87654"
     },
     { 
       id: 6, 
@@ -80,7 +103,10 @@ const Financial = () => {
       caseNumber: "2023/06",
       paymentMethod: "نقدي",
       description: "مصاريف توثيق وتصديق مستندات",
-      category: "مصاريف توثيق"
+      category: "مصاريف توثيق",
+      receiptNumber: "EXP-2023-002",
+      bankAccount: "غير متاح",
+      notes: "إيصالات التوثيق والتصديق مرفقة"
     },
   ];
 
@@ -116,6 +142,30 @@ const Financial = () => {
     
     return matchesSearch;
   });
+
+  const handleEditTransaction = (transaction) => {
+    setSelectedTransaction(transaction);
+    setShowEditDialog(true);
+  };
+
+  const handleViewReceipt = (transaction) => {
+    setSelectedTransaction(transaction);
+    setShowReceiptDialog(true);
+  };
+
+  const handleSaveTransaction = (updatedData) => {
+    // Mock implementation - in a real app this would save to a database
+    console.log("Saving updated transaction:", updatedData);
+    setShowEditDialog(false);
+    // Show toast notification
+    alert("تم تحديث المعاملة المالية بنجاح");
+  };
+
+  const handlePrintReceipt = () => {
+    console.log("Printing receipt for:", selectedTransaction);
+    // In a real app this would trigger print functionality
+    alert("جاري طباعة الإيصال...");
+  };
 
   const getTransactionIcon = (type: string) => {
     if (type === "دفع") {
@@ -261,8 +311,22 @@ const Financial = () => {
                 </div>
                 
                 <div className="flex justify-end mt-3">
-                  <Button size="sm" variant="outline" className="arabic-text">تعديل</Button>
-                  <Button size="sm" variant="default" className="arabic-text mr-2 bg-lawyer-primary hover:bg-lawyer-secondary">إيصال</Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="arabic-text ml-2"
+                    onClick={() => handleEditTransaction(transaction)}
+                  >
+                    تعديل
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="default" 
+                    className="arabic-text bg-lawyer-primary hover:bg-lawyer-secondary"
+                    onClick={() => handleViewReceipt(transaction)}
+                  >
+                    إيصال
+                  </Button>
                 </div>
               </div>
             ))
@@ -289,6 +353,244 @@ const Financial = () => {
           </Button>
         </div>
       </div>
+
+      {/* Edit Transaction Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold arabic-text">تعديل المعاملة المالية</DialogTitle>
+            <DialogDescription className="arabic-text">
+              تعديل بيانات المعاملة المالية رقم {selectedTransaction?.id}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedTransaction && (
+            <div className="py-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="client" className="arabic-text">العميل</Label>
+                    <Input 
+                      id="client" 
+                      className="arabic-text text-right" 
+                      defaultValue={selectedTransaction.client} 
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="caseNumber" className="arabic-text">رقم القضية</Label>
+                    <Input 
+                      id="caseNumber" 
+                      className="arabic-text text-right" 
+                      defaultValue={selectedTransaction.caseNumber} 
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="amount" className="arabic-text">المبلغ (د.ج)</Label>
+                    <Input 
+                      id="amount" 
+                      type="number" 
+                      className="arabic-text text-right" 
+                      defaultValue={selectedTransaction.amount} 
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="date" className="arabic-text">التاريخ</Label>
+                    <Input 
+                      id="date" 
+                      type="date" 
+                      className="arabic-text text-right" 
+                      defaultValue={selectedTransaction.date} 
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="description" className="arabic-text">الوصف</Label>
+                    <Input 
+                      id="description" 
+                      className="arabic-text text-right" 
+                      defaultValue={selectedTransaction.description} 
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="category" className="arabic-text">الفئة</Label>
+                    <Select defaultValue={selectedTransaction.category}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="اختر الفئة" className="arabic-text" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="أتعاب محاماة" className="arabic-text">أتعاب محاماة</SelectItem>
+                        <SelectItem value="استشارة" className="arabic-text">استشارة</SelectItem>
+                        <SelectItem value="رسوم محكمة" className="arabic-text">رسوم محكمة</SelectItem>
+                        <SelectItem value="مصاريف توثيق" className="arabic-text">مصاريف توثيق</SelectItem>
+                        <SelectItem value="أخرى" className="arabic-text">أخرى</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="paymentMethod" className="arabic-text">طريقة الدفع</Label>
+                    <Select defaultValue={selectedTransaction.paymentMethod}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="اختر طريقة الدفع" className="arabic-text" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="نقدي" className="arabic-text">نقدي</SelectItem>
+                        <SelectItem value="شيك" className="arabic-text">شيك</SelectItem>
+                        <SelectItem value="تحويل بنكي" className="arabic-text">تحويل بنكي</SelectItem>
+                        <SelectItem value="بطاقة ائتمان" className="arabic-text">بطاقة ائتمان</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label className="arabic-text mb-2 block">نوع المعاملة</Label>
+                    <RadioGroup defaultValue={selectedTransaction.type} className="flex space-x-4">
+                      <div className="flex items-center space-x-2 ml-4">
+                        <RadioGroupItem value="دفع" id="دفع" />
+                        <Label htmlFor="دفع" className="arabic-text">دفع</Label>
+                      </div>
+                      <div className="flex items-center space-x-2 ml-4">
+                        <RadioGroupItem value="دين" id="دين" />
+                        <Label htmlFor="دين" className="arabic-text">دين</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="مصروف" id="مصروف" />
+                        <Label htmlFor="مصروف" className="arabic-text">مصروف</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-4">
+                <Label htmlFor="notes" className="arabic-text">ملاحظات</Label>
+                <Input 
+                  id="notes" 
+                  className="arabic-text text-right" 
+                  defaultValue={selectedTransaction.notes || ""} 
+                />
+              </div>
+              
+              <DialogFooter className="mt-6">
+                <Button
+                  variant="outline"
+                  className="arabic-text ml-2"
+                  onClick={() => setShowEditDialog(false)}
+                >
+                  إلغاء
+                </Button>
+                <Button 
+                  className="arabic-text bg-lawyer-primary hover:bg-lawyer-secondary" 
+                  onClick={() => handleSaveTransaction({...selectedTransaction})}
+                >
+                  حفظ التغييرات
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Receipt Dialog */}
+      <Dialog open={showReceiptDialog} onOpenChange={setShowReceiptDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold arabic-text">إيصال المعاملة المالية</DialogTitle>
+          </DialogHeader>
+          
+          {selectedTransaction && (
+            <div className="py-4">
+              <div className="border-2 border-gray-300 p-6 rounded-md bg-white">
+                <div className="text-center mb-6">
+                  <h2 className="text-xl font-bold arabic-text">مكتب المحامي</h2>
+                  <p className="arabic-text">العنوان: شارع الاستقلال، الجزائر العاصمة</p>
+                  <p className="arabic-text">هاتف: 021-XX-XX-XX</p>
+                </div>
+                
+                <div className="border-b-2 border-gray-300 pb-2 mb-4">
+                  <div className="flex justify-between">
+                    <div>
+                      <p className="font-bold arabic-text">رقم الإيصال: {selectedTransaction.receiptNumber}</p>
+                    </div>
+                    <div>
+                      <p className="arabic-text">التاريخ: {selectedTransaction.date}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mb-6">
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <p className="text-sm text-gray-600 arabic-text">استلمنا من:</p>
+                      <p className="font-bold arabic-text">{selectedTransaction.client}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 arabic-text">رقم القضية:</p>
+                      <p className="font-bold arabic-text">{selectedTransaction.caseNumber}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <p className="text-sm text-gray-600 arabic-text">طريقة الدفع:</p>
+                      <p className="arabic-text">{selectedTransaction.paymentMethod}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 arabic-text">الفئة:</p>
+                      <p className="arabic-text">{selectedTransaction.category}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <p className="text-sm text-gray-600 arabic-text">الوصف:</p>
+                    <p className="arabic-text">{selectedTransaction.description}</p>
+                  </div>
+                  
+                  <div className="bg-gray-100 p-3 rounded-md">
+                    <p className="text-sm text-gray-600 arabic-text">ملاحظات:</p>
+                    <p className="arabic-text">{selectedTransaction.notes || "لا توجد ملاحظات"}</p>
+                  </div>
+                </div>
+                
+                <div className="border-t-2 border-gray-300 pt-4 flex justify-between items-center">
+                  <div>
+                    <p className="text-sm text-gray-600 arabic-text">نوع المعاملة:</p>
+                    <p className={`font-bold arabic-text ${getTransactionColor(selectedTransaction.type)}`}>{selectedTransaction.type}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 arabic-text">المبلغ:</p>
+                    <p className="text-xl font-bold arabic-text">{selectedTransaction.amount} د.ج</p>
+                  </div>
+                </div>
+                
+                <div className="border-t-2 border-gray-300 mt-6 pt-4 text-center">
+                  <p className="text-sm text-gray-600 arabic-text">توقيع المستلم:</p>
+                  <div className="border-b border-gray-400 w-40 mx-auto mt-6"></div>
+                </div>
+              </div>
+              
+              <DialogFooter className="mt-6">
+                <Button variant="outline" className="arabic-text ml-2" onClick={() => setShowReceiptDialog(false)}>
+                  إغلاق
+                </Button>
+                <Button 
+                  className="arabic-text bg-lawyer-primary hover:bg-lawyer-secondary"
+                  onClick={handlePrintReceipt}
+                >
+                  <Download className="ml-2 h-4 w-4" />
+                  طباعة الإيصال
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

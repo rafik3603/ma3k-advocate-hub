@@ -8,11 +8,14 @@ import { Input } from "@/components/ui/input";
 import { AddCaseForm } from "../components/add-case-form";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const PendingCases = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [filterType, setFilterType] = useState("all");
+  const [selectedCase, setSelectedCase] = useState(null);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   
   // Mock data for pending cases
   const pendingCases = [
@@ -24,7 +27,12 @@ const PendingCases = () => {
       date: "2023-05-15", 
       urgency: "عادي",
       subject: "نزاع عقاري",
-      notes: "تم تقديم الدفوعات الأولية"
+      notes: "تم تقديم الدفوعات الأولية",
+      judge: "محمد علي",
+      nextSessionDate: "2023-06-10",
+      sessionTime: "10:30",
+      requiredDocuments: ["صك ملكية العقار", "عقد البيع الأصلي", "محضر المعاينة"],
+      status: "قيد النظر"
     },
     { 
       id: 2, 
@@ -34,7 +42,12 @@ const PendingCases = () => {
       date: "2023-05-18", 
       urgency: "عاجل",
       subject: "نزاع تجاري",
-      notes: "بانتظار تقديم المستندات المطلوبة"
+      notes: "بانتظار تقديم المستندات المطلوبة",
+      judge: "سمير أحمد",
+      nextSessionDate: "2023-06-05",
+      sessionTime: "11:00",
+      requiredDocuments: ["السجل التجاري", "العقود التجارية", "كشف الحساب البنكي"],
+      status: "مستعجل"
     },
     { 
       id: 3, 
@@ -44,7 +57,12 @@ const PendingCases = () => {
       date: "2023-05-20", 
       urgency: "حرج",
       subject: "قضية جنائية",
-      notes: "تم طلب تأجيل الجلسة القادمة"
+      notes: "تم طلب تأجيل الجلسة القادمة",
+      judge: "نادية محمود",
+      nextSessionDate: "2023-06-15",
+      sessionTime: "09:00",
+      requiredDocuments: ["تقرير الطب الشرعي", "محضر الضبط", "شهادات الشهود"],
+      status: "مستعجل جدا"
     },
     { 
       id: 4, 
@@ -54,7 +72,12 @@ const PendingCases = () => {
       date: "2023-05-22", 
       urgency: "عادي",
       subject: "نزاع عمالي",
-      notes: "بانتظار رد المدعى عليه"
+      notes: "بانتظار رد المدعى عليه",
+      judge: "حسن محمد",
+      nextSessionDate: "2023-06-20",
+      sessionTime: "10:00",
+      requiredDocuments: ["عقد العمل", "مستندات إثبات الفصل", "كشوفات الرواتب"],
+      status: "قيد الرد"
     },
     { 
       id: 5, 
@@ -64,7 +87,12 @@ const PendingCases = () => {
       date: "2023-05-25", 
       urgency: "عاجل",
       subject: "قضية أحوال شخصية",
-      notes: "بحاجة لإعداد صحيفة الدعوى الجديدة"
+      notes: "بحاجة لإعداد صحيفة الدعوى الجديدة",
+      judge: "مريم أحمد",
+      nextSessionDate: "2023-06-12",
+      sessionTime: "12:00",
+      requiredDocuments: ["وثيقة الزواج", "شهادات الميلاد", "تقرير اللجنة الاجتماعية"],
+      status: "تحت الإجراء"
     },
   ];
 
@@ -84,6 +112,18 @@ const PendingCases = () => {
 
   const handleAddCase = () => {
     setShowAddForm(true);
+  };
+
+  const handleViewDetails = (caseItem) => {
+    setSelectedCase(caseItem);
+    setShowDetailsDialog(true);
+  };
+
+  const handleUpdateCase = (caseItem) => {
+    // Mock implementation - in a real app this would save to a database
+    console.log("Updating case:", caseItem);
+    // Show toast notification
+    alert("تم تحديث بيانات القضية بنجاح");
   };
 
   const getUrgencyBadge = (urgency: string) => {
@@ -159,8 +199,22 @@ const PendingCases = () => {
                 </div>
                 
                 <div className="flex justify-end mt-3">
-                  <Button size="sm" variant="outline" className="arabic-text ml-2">التفاصيل</Button>
-                  <Button size="sm" variant="default" className="arabic-text bg-lawyer-primary hover:bg-lawyer-secondary">تحديث</Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="arabic-text ml-2"
+                    onClick={() => handleViewDetails(caseItem)}
+                  >
+                    التفاصيل
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="default" 
+                    className="arabic-text bg-lawyer-primary hover:bg-lawyer-secondary"
+                    onClick={() => handleUpdateCase(caseItem)}
+                  >
+                    تحديث
+                  </Button>
                 </div>
               </div>
             ))
@@ -185,6 +239,103 @@ const PendingCases = () => {
         isOpen={showAddForm} 
         onClose={() => setShowAddForm(false)} 
       />
+
+      {/* Case details dialog */}
+      <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold arabic-text">تفاصيل القضية</DialogTitle>
+            <DialogDescription className="arabic-text">
+              معلومات تفصيلية عن القضية
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedCase && (
+            <div className="py-4 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 arabic-text">رقم القضية</h3>
+                    <p className="arabic-text">{selectedCase.caseNumber}</p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 arabic-text">العميل</h3>
+                    <p className="arabic-text">{selectedCase.client}</p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 arabic-text">المحكمة</h3>
+                    <p className="arabic-text">{selectedCase.court}</p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 arabic-text">موضوع القضية</h3>
+                    <p className="arabic-text">{selectedCase.subject}</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 arabic-text">تاريخ الجلسة القادمة</h3>
+                    <p className="arabic-text">{selectedCase.nextSessionDate} - الساعة {selectedCase.sessionTime}</p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 arabic-text">القاضي المسؤول</h3>
+                    <p className="arabic-text">{selectedCase.judge}</p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 arabic-text">حالة القضية</h3>
+                    <p className="arabic-text">{selectedCase.status}</p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 arabic-text">درجة الاستعجال</h3>
+                    <p className="arabic-text">{selectedCase.urgency}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-sm font-medium text-gray-500 arabic-text">ملاحظات</h3>
+                <p className="arabic-text bg-gray-50 p-2 rounded">{selectedCase.notes}</p>
+              </div>
+              
+              <div>
+                <h3 className="text-sm font-medium text-gray-500 arabic-text">المستندات المطلوبة</h3>
+                <ul className="list-disc pr-5 text-gray-700 arabic-text space-y-1 mt-1">
+                  {selectedCase.requiredDocuments.map((doc, index) => (
+                    <li key={index}>{doc}</li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div className="flex justify-end">
+                <Button 
+                  variant="outline" 
+                  className="ml-2 arabic-text"
+                  onClick={() => setShowDetailsDialog(false)}
+                >
+                  إغلاق
+                </Button>
+                <Button 
+                  className="arabic-text bg-lawyer-primary hover:bg-lawyer-secondary"
+                  onClick={() => {
+                    setShowDetailsDialog(false);
+                    // Navigate to full case details page
+                    // In a real app this would use navigation
+                    alert("سيتم الانتقال إلى صفحة التفاصيل الكاملة");
+                  }}
+                >
+                  عرض التفاصيل الكاملة
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
